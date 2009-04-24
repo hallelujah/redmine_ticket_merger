@@ -1,0 +1,25 @@
+= Ticket Merger
+
+Ce plugin permet de merger deux tickets (du même projet) entre eux.
+
+= Spécifications :
+
+* On merge le ticket A vers le ticket B (le plus ancien)
+
+* On clone les <tt>attachments</tt> du ticket A dans le ticket B
+** On clone aussi la description et on rajoute #B: au début de la description
+
+* On clone les <tt>time_entries</tt> du ticket A dans le ticket B
+** On clone aussi les commentaires et on rajoute #B: au début de la description
+
+* On prend toutes les notes de A ainsi que sa description et on les rassemble dans une note qu'on attribue à B
+** On joint les emails de A avec ceux du ticket B
+
+* On lie A et B
+
+* On passe A en statut merged (c'est un statut fermé)
+
+* On envoie un mail aux emails de A pour les prévenir que c'est désormais le ticket B qui est pris en charge.
+
+
+   
