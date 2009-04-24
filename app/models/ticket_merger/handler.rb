@@ -56,22 +56,27 @@ module TicketMerger
       attr_accessor :journals
       attr_accessor :unsaved_attachments
       attr_accessor :attached_attachments
-      
+      attr_accessor :time_entries
       
       def initialize(from,to)    
         @from_issue = Issue.find(from)
         @to_issue = Issue.find(to)     
         self.prepare
+        self.save
       end
       
       def save
-         @to_issue.save         
+         @to_issue.save   
       end
       
       def separator
           "\n"
       end
       
+      
+      def time_entries
+        @time_entries ||= []
+      end
       
       def attached_attachments
         @attached_attachments ||= []        
@@ -104,7 +109,7 @@ module TicketMerger
             next unless attachment && attachment.size > 0
             a = Attachment.create(:container => to_issue, 
                                   :file => attachment,
-                                  :description => attachment.description.to_s.strip,
+                                  :description => "Ticket##{from_issue.id} : " + attachment.description.to_s.strip,
                                   :author => to_issue.author)
             a.new_record? ? (self.unsaved_attachments << a) : (self.attached_attachments << a)
           end
@@ -117,12 +122,13 @@ module TicketMerger
       
       # Clone the <tt>from_issue.time_entries</tt> 
       def merge_time_entries
-        a = to_issue.time_entries.build(from_issue.time_entries.map(&:attributes))
-        a.each do |te|
-          te.comments = "##{from_issue.id}: #{te.comments}"
+        self.time_entries = to_issue.time_entries.build(from_issue.time_entries.map(&:attributes))
+        self.time_entries.each do |te|
+          te.comments = "Ticket ##{from_issue.id}: #{te.comments}"
           te.user_id = from_issue.author_id          
-        end
-        a
+          te.project_id = from_issue.project_id
+        end        
+        self.to_issue.time_entries += self.time_entries
       end
       
       def prepare
