@@ -34,7 +34,7 @@ module TicketMerger
         files_with_mime_types =  YAML.load(File.popen("file -i " + hash_for_files.collect{|hash| "'#{hash[:path]}'"}.join(' ') )) unless hash_for_files.blank?
         hash_for_files.collect do |hash| 
           self.new(hash[:path],hash[:original_filename],hash[:description],files_with_mime_types )
-          end.delete_if(&:empty?).inject({}){|memo,f| memo[f.path] = f}
+          end.delete_if(&:empty?).inject({}){|memo,f| memo[f.path] = f;memo}
         end        
       end
       
