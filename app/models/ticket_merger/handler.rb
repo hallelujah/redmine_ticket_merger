@@ -11,11 +11,11 @@ module TicketMerger
     
     def empty?
      (!initialized?) || size == 0 
-   end
-   
-   def initialized?
-     !! @initialized 
-   end
+    end
+    
+    def initialized?
+      !! @initialized 
+    end
     
     def initialize(path,original_name,description,files_with_mime_types,mode=nil)
       if File.exist?(path)
@@ -53,7 +53,7 @@ module TicketMerger
       
       attr_reader :from_issue
       attr_reader :to_issue
-      attr_accessor :journals
+      attr_accessor :journal
       attr_accessor :unsaved_attachments
       attr_accessor :attached_attachments
       attr_accessor :time_entries
@@ -66,7 +66,7 @@ module TicketMerger
       end
       
       def save
-         @to_issue.save   
+        @to_issue.save   
       end
       
       def separator
@@ -91,10 +91,15 @@ module TicketMerger
       # Merge the journals
       
       def merge_journals
-        notes = [from_issue] + from_issue.journals.find(:all,:order => "created_on ASC",:include => :journalized).collect do |issue|
-           [issue.notes,issue.journalized.notes] 
-          end.flatten.join(separator)
-        self.journals = to_issue.journals.build(:user_id => to_issue.author_id, :notes => notes)        
+        notes = "* Ticket##{from_issue.id} : "
+        notes << [
+        from_issue.description, 
+        from_issue.journals.find(:all,:order => "created_on ASC",:include => {:journalized => :journals}).collect do |journal|
+          journal.notes 
+        end
+        ].flatten.join(separator)
+        
+        self.journal = to_issue.journals.build(:user_id => to_issue.author_id, :notes => notes)        
       end
       
       
@@ -112,7 +117,7 @@ module TicketMerger
             a = Attachment.create(:container => to_issue, 
                                   :file => attachment,
                                   :description => "Ticket##{from_issue.id} : " + attachment.description.to_s.strip,
-                                  :author => to_issue.author)
+            :author => to_issue.author)
             a.new_record? ? (self.unsaved_attachments << a) : (self.attached_attachments << a)
           end
           #          if unsaved.any?
