@@ -91,8 +91,10 @@ module TicketMerger
       # Merge the journals
       
       def merge_journals
-        notes = ([from_issue] + from_issue.journals.find(:all,:order => "created_on ASC").collect(&:notes)).join(separator)
-        self.journals = to_issue.journals.build(:user_id => to_issue.author_id, :notes => notes)
+        notes = [from_issue] + from_issue.journals.find(:all,:order => "created_on ASC",:include => :journalized).collect do |issue|
+           [issue.notes,issue.journalized.notes] 
+          end.flatten.join(separator)
+        self.journals = to_issue.journals.build(:user_id => to_issue.author_id, :notes => notes)        
       end
       
       
