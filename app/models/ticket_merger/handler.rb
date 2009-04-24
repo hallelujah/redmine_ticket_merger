@@ -19,7 +19,7 @@ module TicketMerger
     
     def initialize(path,original_name,description,files_with_mime_types,mode=nil)
       if File.exist?(path)
-        super(File.read(path),mode) 
+        super(File.read(path,mode)) 
         self.set_content_type_from_mime_types(files_with_mime_types)    
         @description = description
         @path = path
@@ -41,7 +41,7 @@ module TicketMerger
       protected
       
       def set_content_type_from_mime_types(files_with_mime_types={})
-        @content_type = files_with_mime_types[self.file_name]
+        @content_type = files_with_mime_types[self.path]
       end
       
     end
