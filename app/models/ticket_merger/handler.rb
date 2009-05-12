@@ -94,7 +94,7 @@ module TicketMerger
         notes = "* Ticket##{from_issue.id} : "
         notes << [
         from_issue.description, 
-        from_issue.journals.find(:all,:order => "created_on ASC",:include => {:journalized => :journals}).collect do |journal|
+        from_issue.journals.find(:all,:order => "created_on ASC",:include => {:journalized => :details}).collect do |journal|
           journal.notes 
         end
         ].flatten.join(separator)
